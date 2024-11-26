@@ -9,17 +9,17 @@ class Receipt
 public:
 	// Constructors
 	Receipt();
-	Receipt(const std::string& retailer, const uint purchaseDate, const uint purchaseTime, const std::vector<Item>& items, const double total);
+	Receipt(const std::string& retailer, const Date purchaseDate, const Time purchaseTime, const std::vector<Item>& items, const double total);
 
 	// Member functions
 	bool validate() const; // Returns whether the Receipt has valid data
-	std::string generate_id() const; // Generates an id for the Receipt
-	uint calculate_points() const; // Calculates the points for the Receipt
+	const std::string generate_id() const; // Generates an id for the Receipt
+	const uint calculate_points() const; // Calculates the points for the Receipt
 
 	// Member variables
 	const std::string retailer;
-	const uint purchaseDate;
-	const uint purchaseTime;
+	const Date purchaseDate;
+	const Time purchaseTime;
 	const std::vector<Item> items;
 	const double total;
 };
