@@ -46,7 +46,7 @@ const uint Receipt::calculate_points() const
 	 * 50 points if the total is a round dollar amount.
 	 * 25 points if the total is a multiple of 0.25.
 	 * 5 points for every two items on the receipt.
-	 * For each item, if the description length is a multiple of 3, multiply the price by 0.2 and round the result up to the nearest integer; earn that many points.
+	 * For each item, if the trimmed description length is a multiple of 3, multiply the price by 0.2 and round the result up to the nearest integer; earn that many points.
 	 */
 	uint points = 0;
 
@@ -71,7 +71,7 @@ const uint Receipt::calculate_points() const
 	// 5 points for every two items on the receipt
 	points += 5 * (items.size() / 2);
 
-	// For each item, if the description length is a multiple of 3, multiply the price by 0.2 and round the result up to the nearest integer; earn that many points
+	// For each item, if the trimmed description length is a multiple of 3, multiply the price by 0.2 and round the result up to the nearest integer; earn that many points
 	for (const Item& item : items)
 	{
 		if (item.trimWhiteSpace().length() % 3 == 0)
