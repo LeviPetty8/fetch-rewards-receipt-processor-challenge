@@ -19,6 +19,12 @@
     <Filter Include="Source Files\DateTime">
       <UniqueIdentifier>{53af7347-4072-42c6-8f40-75fc999eb9af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Parsing">
+      <UniqueIdentifier>{66bcf84e-fb27-49be-be9f-a08a7cea9c62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Parsing">
+      <UniqueIdentifier>{d916f2c4-ced6-439a-b029-5ea7b331adf6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TypeDefs.h">
@@ -36,6 +42,9 @@
     <ClInclude Include="Item.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Parser.h">
+      <Filter>Header Files\Parsing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -52,6 +61,9 @@
     </ClCompile>
     <ClCompile Include="Receipt.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Parser.cpp">
+      <Filter>Source Files\Parsing</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

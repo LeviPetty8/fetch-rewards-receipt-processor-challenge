@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClInclude Include="Date.h" />
     <ClInclude Include="Item.h" />
+    <ClInclude Include="Parser.h" />
     <ClInclude Include="Receipt.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="TypeDefs.h" />
@@ -138,6 +139,7 @@
     <ClCompile Include="Date.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Parser.cpp" />
     <ClCompile Include="Receipt.cpp" />
     <ClCompile Include="Time.cpp" />
   </ItemGroup>
