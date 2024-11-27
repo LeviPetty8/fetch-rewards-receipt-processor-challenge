@@ -38,10 +38,16 @@ std::ostream& operator<<(std::ostream& os, const Time& t)
 
 const bool Time::operator<(const Time t) const
 {
-	return hour < t.hour || minute < t.minute;
+	if (hour < t.hour) return true;
+	else if (hour == t.hour && minute < t.minute) return true;
+
+	return false;
 }
 
 const bool Time::operator>(const Time t) const
 {
-	return hour > t.hour || minute > t.minute;
+	if (hour > t.hour) return true;
+	else if (hour == t.hour && minute > t.minute) return true;
+
+	return false;
 }

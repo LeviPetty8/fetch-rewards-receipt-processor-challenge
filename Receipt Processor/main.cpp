@@ -1,6 +1,3 @@
-#include <format>
-//#include "Time.h"
-//#include "Date.h"
 #include "Receipt.h"
 
 int main()
@@ -24,5 +21,20 @@ int main()
 		35.35
 	);
 
-	std::cout << rec.calculate_points();
+	std::cout << rec.retailer << " " << rec.calculate_points() << std::endl;
+	
+	Receipt rec2(
+		"M&M Corner Market",
+		Date(2022, 3, 20),
+		Time(14, 33),
+		{
+			Item("Gatorade", 2.25),
+			Item("Gatorade", 2.25),
+			Item("Gatorade", 2.25),
+			Item("Gatorade", 2.25)
+		},
+		9.00
+	);
+
+	std::cout << rec2.retailer << " " << rec2.calculate_points() << std::endl;
 }

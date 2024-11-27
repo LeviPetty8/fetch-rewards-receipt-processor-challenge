@@ -2,8 +2,8 @@
 #include <cmath>
 #include "Receipt.h"
 
-const Time Receipt::TARGET_TIME_BEGIN(2, 0);
-const Time Receipt::TARGET_TIME_END(4, 0);
+const Time Receipt::TARGET_TIME_BEGIN(14, 0);
+const Time Receipt::TARGET_TIME_END(16, 0);
 
 // Define constructors
 Receipt::Receipt() : retailer(""), purchaseDate(), purchaseTime(), items(), total(0) // Default constructor
@@ -74,7 +74,7 @@ const uint Receipt::calculate_points() const
 	// For each item, if the description length is a multiple of 3, multiply the price by 0.2 and round the result up to the nearest integer; earn that many points
 	for (const Item& item : items)
 	{
-		if (item.desc.length() % 3 == 0)
+		if (item.trimWhiteSpace().length() % 3 == 0)
 		{
 			points += ceil(item.price * 0.2);
 		}
