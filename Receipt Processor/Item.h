@@ -10,6 +10,7 @@ public:
 
 	// Member functions
 	bool validate() const; // Returns whether Item is valid
+	std::string trimWhiteSpace() const; // Remove leading and trailing whitespace from the description
 
 	// Member variables
 	const std::string desc;
