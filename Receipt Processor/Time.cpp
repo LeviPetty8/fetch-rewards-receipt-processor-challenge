@@ -36,12 +36,12 @@ std::ostream& operator<<(std::ostream& os, const Time& t)
 	return os;
 }
 
-bool Time::operator<(const Time& t)
+bool const Time::operator<(const Time t)
 {
 	return hour < t.hour || minute < t.minute;
 }
 
-bool Time::operator>(const Time& t)
+bool const Time::operator>(const Time t)
 {
 	return hour > t.hour || minute > t.minute;
 }

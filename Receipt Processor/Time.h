@@ -17,13 +17,14 @@ public:
 
 	// Operator overloads
 	friend std::ostream& operator<<(std::ostream& os, const Time& t);
-	bool operator<(const Time& t);
-	bool operator>(const Time& t);
+	bool const operator<(const Time t);
+	bool const operator>(const Time t);
 
 	// Member variables
 	const uint hour;
 	const uint minute;
 
+private:
 	// Default variable values
 	static const uint DEF_HOUR = 12;
 	static const uint DEF_MINUTE = 0;	

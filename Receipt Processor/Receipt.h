@@ -22,4 +22,8 @@ public:
 	const Time purchaseTime;
 	const std::vector<Item> items;
 	const double total;
+
+private:
+	static const Time TARGET_TIME_BEGIN;
+	static const Time TARGET_TIME_END;
 };

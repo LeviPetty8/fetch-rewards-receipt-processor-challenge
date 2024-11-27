@@ -23,12 +23,12 @@ public:
 	const uint month;
 	const uint day;
 
+private:
 	// Default variable values
 	static const uint DEF_YEAR = 1900;
 	static const uint DEF_MONTH = 1;
 	static const uint DEF_DAY = 1;
 
-private:
 	// Private member function
 	bool is_leap_year() const; // Calculates whether the Date belongs to a leap-year
 };

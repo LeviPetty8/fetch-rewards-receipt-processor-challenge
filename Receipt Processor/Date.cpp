@@ -39,7 +39,7 @@ bool Date::validate() const
 std::string Date::to_string() const
 {
 	std::string yearStr = std::to_string(year);
-	yearStr.insert(0, 4 - yearStr.length(), '0'); // 4 digit year
+	if (yearStr.length() < 4) yearStr.insert(0, 4 - yearStr.length(), '0'); // 4 digit year
 
 	return std::format("{}-{}-{}", yearStr, month, day); // yyyy-mm-dd
 }

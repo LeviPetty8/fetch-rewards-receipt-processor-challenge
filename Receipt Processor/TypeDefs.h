@@ -1,3 +1,3 @@
 #pragma once
 
-typedef unsigned int uint;
+typedef uint16_t uint;
