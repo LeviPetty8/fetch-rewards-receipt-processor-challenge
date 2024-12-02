@@ -1,4 +1,5 @@
 #pragma once
+#include <optional>
 #include <fstream>
 #include <filesystem>
 #include "Receipt.h"
@@ -21,10 +22,10 @@ private:
 	const std::string generateID() const; // Generates an id for the Receipt
 	const std::string intToID(int num) const; // Converts a number to an id
 
-	const Receipt parseReceipt(std::ifstream& json) const; // Parse all data for receipt
-	const Date parsePurchaseDate(const std::string& dateStr) const; // Parse value for purchase date
-	const Time parsePurchaseTime(const std::string& timeStr) const; // Parse value for purchase time
-	const Item parseItem(const std::string& itemStr) const; // Parse value for an item
+	const std::optional<Receipt> parseReceipt(std::ifstream& json) const; // Parse all data for receipt
+	const std::optional<Date> parsePurchaseDate(const std::string& dateStr) const; // Parse value for purchase date
+	const std::optional<Time> parsePurchaseTime(const std::string& timeStr) const; // Parse value for purchase time
+	const std::optional<Item> parseItem(const std::string& itemStr) const; // Parse value for an item
 
 	// Private helper functions for GET
 	const std::string parseScore(std::ifstream& json) const; // Parse score

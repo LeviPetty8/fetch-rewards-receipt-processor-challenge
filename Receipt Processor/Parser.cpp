@@ -2,6 +2,8 @@
 #include <regex>
 #include "Parser.h"
 
+const std::nullopt_t null = std::nullopt;
+
 // Define static member variables
 const fs::path Parser::RECEIPTS(fs::current_path() / "receipts");
 
@@ -20,8 +22,10 @@ void Parser::POST(const std::string& filename) const
 	}
 	
 	// Perform file input
-	const Receipt receipt = parseReceipt(fin);
+	const std::optional<Receipt> receipt = parseReceipt(fin);
 	fin.close();
+
+	if (!receipt.has_value()) return; // Exit if receipt parsing failed
 
 	// Create new directory for file output
 	const std::string id = generateID();
@@ -36,7 +40,7 @@ void Parser::POST(const std::string& filename) const
 	}
 
 	// Output score to points.json
-	const uint score = receipt.calculatePoints();
+	const uint score = receipt.value().calculatePoints();
 	fout << "{ \"points\": " << score << " }";
 	fout.close();
 
@@ -95,6 +99,8 @@ const std::string Parser::generateID() const
 			return id;
 		}
 	}
+
+	return "";
 }
 
 const std::string Parser::intToID(int num) const
@@ -113,7 +119,7 @@ const std::string Parser::intToID(int num) const
 	return result;
 }
 
-const Receipt Parser::parseReceipt(std::ifstream& json) const
+const std::optional<Receipt> Parser::parseReceipt(std::ifstream& json) const
 {
 	std::string data;
 
@@ -126,12 +132,12 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 	if (data.front() != '{')
 	{
 		std::cerr << "File format invalid; file must open with a {." << std::endl;
-		return Receipt();
+		return null;
 	}
 	if (data.back() != '}')
 	{
 		std::cerr << "File format invalid; file must close with a }." << std::endl;
-		return Receipt();
+		return null;
 	}
 
 	// Parse receipt data
@@ -145,7 +151,7 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 	if (current.compare("\"retailer\"") != 0)
 	{
 		std::cerr << "File format invalid; expected \"retailer\" but not found." << std::endl;
-		return Receipt();
+		return null;
 	}
 	// Next word is the value for retailer
 	std::getline(ss, current, ',');
@@ -153,7 +159,7 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 	if (current.empty())
 	{
 		std::cerr << "File format invalid; invalid value for \"retailer\"." << std::endl;
-		return Receipt();
+		return null;
 	}
 	const std::string retailer = current;
 
@@ -162,7 +168,7 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 	if (current.compare("\"purchaseDate\"") != 0)
 	{
 		std::cerr << "File format invalid; expected \"purchaseDate\" but not found." << std::endl;
-		return Receipt();
+		return null;
 	}
 	// Next word is the value for purchaseDate
 	std::getline(ss, current, ',');
@@ -170,13 +176,14 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 	if (current.empty())
 	{
 		std::cerr << "File format invalid; invalid value for \"purchaseDate\". Expected format is yyyy-mm-dd." << std::endl;
-		return Receipt();
+		return null;
 	}
-	const Date purchaseDate = parsePurchaseDate(current);
-	if (!purchaseDate.validate())
+	const std::optional<Date> purchaseDate = parsePurchaseDate(current);
+	if (!purchaseDate.has_value()) return null;
+	if (!purchaseDate.value().validate())
 	{
 		std::cerr << "File data invalid; Date is impossible." << std::endl;
-		return Receipt();
+		return null;
 	}
 
 	// Next is "purchaseTime"
@@ -184,7 +191,7 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 	if (current.compare("\"purchaseTime\"") != 0)
 	{
 		std::cerr << "File format invalid; expected \"purchaseTime\" but not found." << std::endl;
-		return Receipt();
+		return null;
 	}
 	// Next word is the value for purchaseTime
 	std::getline(ss, current, ',');
@@ -192,13 +199,14 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 	if (current.empty())
 	{
 		std::cerr << "File format invalid; invalid value for \"purchaseTime\". Expected format is hh:mm." << std::endl;
-		return Receipt();
+		return null;
 	}
-	const Time purchaseTime = parsePurchaseTime(current);
-	if (!purchaseTime.validate())
+	const std::optional<Time> purchaseTime = parsePurchaseTime(current);
+	if (!purchaseTime.has_value()) return null;
+	if (!purchaseTime.value().validate())
 	{
 		std::cerr << "File data invalid; Time is impossible." << std::endl;
-		return Receipt();
+		return null;
 	}
 
 	// Next is "total"
@@ -206,7 +214,7 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 	if (current.compare("\"total\"") != 0)
 	{
 		std::cerr << "File format invalid; expected \"total\" but not found." << std::endl;
-		return Receipt();
+		return null;
 	}
 	// Next word is the value for total
 	std::getline(ss, current, ',');
@@ -215,7 +223,7 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 	if (!std::regex_match(current, totalFormat))
 	{
 		std::cerr << "File format invalid; invalid value for \"total\". Expected format includes cents even for exact dollar amounts." << std::endl;
-		return Receipt();
+		return null;
 	}
 	const double total = std::stod(current);
 
@@ -224,7 +232,7 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 	if (current.compare("\"items\"") != 0)
 	{
 		std::cerr << "File format invalid; expected \"items\" but not found." << std::endl;
-		return Receipt();
+		return null;
 	}
 	// Next is the value for items
 	std::getline(ss, current);
@@ -233,7 +241,7 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 		current.back() != ']')
 	{
 		std::cerr << "File format invalid; expected items to begin with [ and end with ]." << std::endl;
-		return Receipt();
+		return null;
 	}
 	// Remove [ and ]
 	current.erase(current.begin());
@@ -251,20 +259,21 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 			if (current.front() != ',')
 			{
 				std::cerr << "File format invalid; items should be separated by commas." << std::endl;
-				return Receipt();
+				return null;
 			}
 			current.erase(current.begin()); // Remove comma at start
 		}
 		if (current.front() != '{')
 		{
 			std::cerr << "File format invalid; each item should begin with {." << std::endl;
-			return Receipt();
+			return null;
 		}
 		// Setup for current iteration
 		const size_t end = current.find_first_of('}');
 		const std::string itemStr = current.substr(1, end - 1);
 
-		items.push_back(parseItem(itemStr));
+		const std::optional<Item> item = parseItem(itemStr);
+		if (item.has_value()) items.push_back(item.value());
 
 		// Setup for next iteration
 		current = current.substr(end + 1);
@@ -275,27 +284,27 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 	if (items.empty())
 	{
 		std::cerr << "File data invalid; no items in receipt." << std::endl;
-		return Receipt();
+		return null;
 	}
 
-	Receipt result(retailer, purchaseDate, purchaseTime, items, total);
+	Receipt result(retailer, purchaseDate.value(), purchaseTime.value(), items, total);
 	if (!result.validate())
 	{
 		// Should only happen if total doesn't add up
 		std::cerr << "File data invalid; total doesn't match item data." << std::endl;
-		return Receipt();
+		return null;
 	}
 	return result;
 }
 
-const Date Parser::parsePurchaseDate(const std::string& dateStr) const
+const std::optional<Date> Parser::parsePurchaseDate(const std::string& dateStr) const
 {
 	// Make sure format is correct
 	std::regex dateFormat("[0-9]{4,}-[0-9]{2}-[0-9]{2}");
 	if (!std::regex_match(dateStr, dateFormat))
 	{
 		std::cerr << "File format invalid; invalid value for \"purchaseDate\". Expected format is yyyy-mm-dd." << std::endl;
-		return Date();
+		return null;
 	}
 
 	std::stringstream ss(dateStr);
@@ -312,14 +321,14 @@ const Date Parser::parsePurchaseDate(const std::string& dateStr) const
 	return Date(std::stoi(year), std::stoi(month), std::stoi(day));
 }
 
-const Time Parser::parsePurchaseTime(const std::string& timeStr) const
+const std::optional<Time> Parser::parsePurchaseTime(const std::string& timeStr) const
 {
 	// Make sure format is correct
 	std::regex timeFormat("[0-9]{2}:[0-9]{2}");
 	if (!std::regex_match(timeStr, timeFormat))
 	{
 		std::cerr << "File format invalid; invalid value for \"purchaseTime\". Expected format is hh:mm." << std::endl;
-		return Time();
+		return null;
 	}
 
 	std::stringstream ss(timeStr);
@@ -333,7 +342,7 @@ const Time Parser::parsePurchaseTime(const std::string& timeStr) const
 	return Time(std::stoi(hour), std::stoi(minute));
 }
 
-const Item Parser::parseItem(const std::string& itemStr) const
+const std::optional<Item> Parser::parseItem(const std::string& itemStr) const
 {
 	std::stringstream ss(itemStr);
 	std::string current;
@@ -343,7 +352,7 @@ const Item Parser::parseItem(const std::string& itemStr) const
 	if (current.compare("\"shortDescription\"") != 0)
 	{
 		std::cerr << "File format invalid; expected \"shortDescription\" but not found." << std::endl;
-		return Item();
+		return null;
 	}
 	// Next is value for shortDescription
 	std::getline(ss, current, ',');
@@ -351,7 +360,7 @@ const Item Parser::parseItem(const std::string& itemStr) const
 	if (current.empty())
 	{
 		std::cerr << "File format invalid; invalid value for \"shortDescription\"." << std::endl;
-		return Item();
+		return null;
 	}
 	const std::string desc = current;
 
@@ -361,7 +370,7 @@ const Item Parser::parseItem(const std::string& itemStr) const
 	if (current.compare("\"price\"") != 0)
 	{
 		std::cerr << "File format invalid; expected \"price\" but not found." << std::endl;
-		return Item();
+		return null;
 	}
 	// Next is value for price
 	std::getline(ss, current);
@@ -370,7 +379,7 @@ const Item Parser::parseItem(const std::string& itemStr) const
 	if (!std::regex_match(current, priceFormat))
 	{
 		std::cerr << "File format invalid; invalid value for \"price\". Expected format includes cents even for exact dollar amounts." << std::endl;
-		return Item();
+		return null;
 	}
 	const double price = std::stod(current);
 
