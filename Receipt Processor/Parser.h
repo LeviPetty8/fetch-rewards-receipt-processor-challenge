@@ -11,8 +11,11 @@ public:
 	// Constructors
 	Parser() {};
 
-	// Member functions for POST
+	// Member function for POST
 	void POST(const std::string& filename) const;
+
+	// Member function for GET
+	void GET(const std::string& id) const;
 private:
 	// Private helper functions for POST
 	const std::string generateID() const; // Generates an id for the Receipt
@@ -22,6 +25,9 @@ private:
 	const Date parsePurchaseDate(const std::string& dateStr) const; // Parse value for purchase date
 	const Time parsePurchaseTime(const std::string& timeStr) const; // Parse value for purchase time
 	const Item parseItem(const std::string& itemStr) const; // Parse value for an item
+
+	// Private helper functions for GET
+	const std::string parseScore(std::ifstream& json) const; // Parse score
 
 	const std::string trimWhiteSpace(const std::string& s) const; // Remove leading and trailing whitespace
 	const std::string trimQuotes(const std::string& s) const; // Get part of string between quotes

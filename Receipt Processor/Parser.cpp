@@ -5,7 +5,7 @@
 // Define static member variables
 const fs::path Parser::RECEIPTS(fs::current_path() / "receipts");
 
-// Define public member functions for POST
+// Define public member function for POST
 
 void Parser::POST(const std::string& filename) const
 {
@@ -37,11 +37,44 @@ void Parser::POST(const std::string& filename) const
 
 	// Output score to points.json
 	const uint score = receipt.calculatePoints();
-	fout << score;
+	fout << "{ \"points\": " << score << " }";
 	fout.close();
 
 	// Output ID
 	std::cout << "{ \"id\": \"" << id << "\" }" << std::endl;
+}
+
+// Define public member function for GET
+
+void Parser::GET(const std::string& id) const
+{
+	const fs::path path(RECEIPTS / id);
+	if (!fs::exists(path))
+	{
+		std::cerr << std::format("ID {} not found.", id) << std::endl;
+		return;
+	}
+	const fs::path file(path / "points.json");
+
+	// Setup for file input
+	std::ifstream fin(file);
+	if (!fin.is_open())
+	{
+		std::cerr << "File points.json failed to open." << std::endl;
+		return;
+	}
+
+	// Perform file input
+	const std::string result = parseScore(fin);
+	fin.close();
+
+	// Print output
+	if (result.empty())
+	{
+		std::cerr << "Invalid file format." << std::endl;
+		return;
+	}
+	std::cout << result << std::endl;
 }
 
 // Define private helper member functions for POST
@@ -97,7 +130,7 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 	}
 	if (data.back() != '}')
 	{
-		std::cerr << "File format invalid; file must open with a }." << std::endl;
+		std::cerr << "File format invalid; file must close with a }." << std::endl;
 		return Receipt();
 	}
 
@@ -334,6 +367,45 @@ const Item Parser::parseItem(const std::string& itemStr) const
 	const double price = std::stod(current);
 
 	return Item(desc, price);
+}
+
+// Define private helper member functions for GET
+const std::string Parser::parseScore(std::ifstream& json) const
+{
+	std::string data;
+	
+	for (std::string line; std::getline(json, line);)
+	{
+		data.append(trimWhiteSpace(line));
+	}
+	const std::string result = data;
+
+	// File should begin with { and end with }
+	if (data.front() != '{' ||
+		data.back() != '}') return "";
+
+	data.erase(data.begin());
+	data.pop_back();
+	std::stringstream ss(trimWhiteSpace(data));
+	std::string current;
+
+	// First word should be "score"
+	std::getline(ss, current, ':');
+	current = trimQuotes(current);
+	if (current.compare("points") != 0)
+	{
+		return "";
+	}
+
+	// Second word should be a number
+	std::getline(ss, current);
+	current = trimWhiteSpace(current);
+	for (const char& c : current)
+	{
+		if (!std::isdigit(c)) return "";
+	}
+
+	return result;
 }
 
 const std::string Parser::trimWhiteSpace(const std::string& s) const
