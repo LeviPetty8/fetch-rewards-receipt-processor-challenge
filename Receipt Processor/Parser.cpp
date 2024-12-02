@@ -118,10 +118,51 @@ const Receipt Parser::parseReceipt(std::fstream& json) const
 		return Receipt();
 	}
 	// Next is the value for items
-	std::getline(ss, current, ']');
-	std::cout << current;
+	std::getline(ss, current);
+	current = trimWhiteSpace(current);
+	if (current.front() != '[' ||
+		current.back() != ']')
+	{
+		std::cerr << "File format invalid; expected items to begin with [ and end with ].";
+		return Receipt();
+	}
+	// Remove [ and ]
+	current.erase(current.begin());
+	current.pop_back();
 
-	return Receipt();
+	// Setup vector of items
+	std::vector<Item> items;
+
+	// Iterate through items
+	bool first = true;
+	while (!current.empty())
+	{
+		if (!first)
+		{
+			if (current.front() != ',')
+			{
+				std::cerr << "File format invalid; items should be separated by commas.";
+				return Receipt();
+			}
+			current.erase(current.begin()); // Remove comma at start
+		}
+		if (current.front() != '{')
+		{
+			std::cerr << "File format invalid; each item should begin with {.";
+			return Receipt();
+		}
+		// Setup for current iteration
+		const size_t end = current.find_first_of('}');
+		const std::string itemStr = current.substr(1, end - 1);
+
+		items.push_back(parseItem(itemStr));
+
+		// Setup for next iteration
+		current = current.substr(end + 1);
+		first = false;
+	}
+
+	return Receipt(retailer, purchaseDate, purchaseTime, items, total);
 }
 
 const Date Parser::parsePurchaseDate(const std::string& dateStr) const
@@ -169,7 +210,51 @@ const Time Parser::parsePurchaseTime(const std::string& timeStr) const
 	return Time(std::stoi(hour), std::stoi(minute));
 }
 
-const std::string Parser::trimWhiteSpace(std::string s) const
+const Item Parser::parseItem(const std::string& itemStr) const
+{
+	std::stringstream ss(itemStr);
+	std::string current;
+	
+	// Expect first word to be "shortDescription"
+	std::getline(ss, current, ':');
+	if (current.compare("\"shortDescription\"") != 0)
+	{
+		std::cerr << "File format invalid; expected \"shortDescription\" but not found.";
+		return Item();
+	}
+	// Next is value for shortDescription
+	std::getline(ss, current, ',');
+	current = trimQuotes(current);
+	if (current.empty())
+	{
+		std::cerr << "File format invalid; invalid value for \"shortDescription\".";
+		return Item();
+	}
+	const std::string desc = current;
+
+	// Next is "price"
+	std::getline(ss, current, ':');
+	current = trimWhiteSpace(current);
+	if (current.compare("\"price\"") != 0)
+	{
+		std::cerr << "File format invalid; expected \"price\" but not found.";
+		return Item();
+	}
+	// Next is value for price
+	std::getline(ss, current);
+	current = trimQuotes(current);
+	std::regex priceFormat("[0-9]+.[0-9]{2}");
+	if (!std::regex_match(current, priceFormat))
+	{
+		std::cerr << "File format invalid; invalid value for \"price\". Expected format includes cents even for exact dollar amounts.";
+		return Item();
+	}
+	const double price = std::stod(current);
+
+	return Item(desc, price);
+}
+
+const std::string Parser::trimWhiteSpace(const std::string& s) const
 {
 	// Return an empty string if the string only contains whitespace
 	size_t begin = s.find_first_not_of(' ');
@@ -178,7 +263,7 @@ const std::string Parser::trimWhiteSpace(std::string s) const
 	return s.substr(begin, s.find_last_not_of(' ') - begin + 1);
 }
 
-const std::string Parser::trimQuotes(std::string s) const
+const std::string Parser::trimQuotes(const std::string& s) const
 {
 	std::string result = trimWhiteSpace(s);
 	

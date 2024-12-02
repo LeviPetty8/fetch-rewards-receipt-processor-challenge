@@ -6,7 +6,7 @@ int main()
 
 	Parser p;
 
-	const std::string filename = path + "/simple-receipt.json";
+	const std::string filename = path + "/morning-receipt.json";
 
 	std::fstream fin(filename);
 	Receipt r = p.parseReceipt(fin);
