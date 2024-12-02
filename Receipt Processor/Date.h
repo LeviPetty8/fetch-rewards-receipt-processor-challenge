@@ -17,6 +17,7 @@ public:
 
 	// Operator overloads
 	friend std::ostream& operator<<(std::ostream& os, const Date& dt);
+	//void operator=(const Date& dt);
 
 	// Member variables
 	const uint year;

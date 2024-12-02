@@ -18,7 +18,6 @@ bool Item::validate() const
 
 const std::string Item::trimWhiteSpace() const
 {
-	std::string result = desc.substr(desc.find_first_not_of(' ')); // Remove leading whitespaces
-	result = result.substr(0, result.find_last_not_of(' ')+1); // Remove trailing whitespaces
-	return result;
+	size_t begin = desc.find_first_not_of(' ');
+	return desc.substr(begin, desc.find_last_not_of(' ') - begin + 1);
 }

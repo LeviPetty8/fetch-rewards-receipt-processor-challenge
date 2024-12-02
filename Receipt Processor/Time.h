@@ -17,6 +17,7 @@ public:
 
 	// Operator overloads
 	friend std::ostream& operator<<(std::ostream& os, const Time& t);
+	//void operator=(const Time& t);
 	const bool operator<(const Time t) const;
 	const bool operator>(const Time t) const;
 

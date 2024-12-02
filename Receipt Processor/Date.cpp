@@ -3,7 +3,7 @@
 
 // Define constructors
 
-Date::Date() : Date(DEF_YEAR, DEF_MONTH, DEF_YEAR) // Default constructor
+Date::Date() : Date(DEF_YEAR, DEF_MONTH, DEF_DAY) // Default constructor
 {}
 
 Date::Date(const uint year, const uint month, const uint day) : // Parameterized constructor
@@ -40,8 +40,14 @@ std::string Date::to_string() const
 {
 	std::string yearStr = std::to_string(year);
 	if (yearStr.length() < 4) yearStr.insert(0, 4 - yearStr.length(), '0'); // 4 digit year
+	
+	std::string monthStr = std::to_string(month);
+	monthStr.insert(0, 2 - monthStr.length(), '0'); // 2 digit month
 
-	return std::format("{}-{}-{}", yearStr, month, day); // yyyy-mm-dd
+	std::string dayStr = std::to_string(day);
+	dayStr.insert(0, 2 - dayStr.length(), '0'); // 2 digit day
+
+	return std::format("{}-{}-{}", yearStr, monthStr, day); // yyyy-mm-dd
 }
 
 // Define operator overloads
