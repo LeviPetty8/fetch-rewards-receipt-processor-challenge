@@ -162,7 +162,13 @@ const Receipt Parser::parseReceipt(std::fstream& json) const
 		first = false;
 	}
 
-	return Receipt(retailer, purchaseDate, purchaseTime, items, total);
+	Receipt result(retailer, purchaseDate, purchaseTime, items, total);
+	if (!result.validate())
+	{
+		std::cerr << "File data invalid; result receipt is not valid.";
+		return Receipt();
+	}
+	return result;
 }
 
 const Date Parser::parsePurchaseDate(const std::string& dateStr) const
