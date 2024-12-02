@@ -13,8 +13,7 @@ public:
 
 	// Member functions
 	bool validate() const; // Returns whether the Receipt has valid data
-	const std::string generate_id() const; // Generates an id for the Receipt
-	const uint calculate_points() const; // Calculates the points for the Receipt
+	const uint calculatePoints() const; // Calculates the points for the Receipt
 
 	// Member variables
 	const std::string retailer;

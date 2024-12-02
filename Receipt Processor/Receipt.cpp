@@ -1,6 +1,7 @@
-#include <ctype.h>
-#include <cmath>
+#include <filesystem>
 #include "Receipt.h"
+
+namespace fs = std::filesystem;
 
 const Time Receipt::TARGET_TIME_BEGIN(14, 0);
 const Time Receipt::TARGET_TIME_END(16, 0);
@@ -31,13 +32,7 @@ bool Receipt::validate() const
 	return tally == total;
 }
 
-const std::string Receipt::generate_id() const
-{
-	// TODO //
-	return "";
-}
-
-const uint Receipt::calculate_points() const
+const uint Receipt::calculatePoints() const
 {
 	/* Rules for points:
 	 * 1 point for every alphanumeric character in the retailer name.

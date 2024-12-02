@@ -27,9 +27,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TypeDefs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Time.h">
       <Filter>Header Files\DateTime</Filter>
     </ClInclude>

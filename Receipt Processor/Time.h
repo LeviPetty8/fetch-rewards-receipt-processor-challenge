@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 
-#include "TypeDefs.h"
+typedef unsigned int uint;
 
 class Time
 {

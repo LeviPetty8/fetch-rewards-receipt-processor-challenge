@@ -133,7 +133,6 @@
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Receipt.h" />
     <ClInclude Include="Time.h" />
-    <ClInclude Include="TypeDefs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Date.cpp" />
