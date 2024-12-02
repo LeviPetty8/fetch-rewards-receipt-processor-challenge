@@ -271,10 +271,18 @@ const Receipt Parser::parseReceipt(std::ifstream& json) const
 		first = false;
 	}
 
+	// Items list should not be empty
+	if (items.empty())
+	{
+		std::cerr << "File data invalid; no items in receipt." << std::endl;
+		return Receipt();
+	}
+
 	Receipt result(retailer, purchaseDate, purchaseTime, items, total);
 	if (!result.validate())
 	{
-		std::cerr << "File data invalid; result receipt is not valid." << std::endl;
+		// Should only happen if total doesn't add up
+		std::cerr << "File data invalid; total doesn't match item data." << std::endl;
 		return Receipt();
 	}
 	return result;
