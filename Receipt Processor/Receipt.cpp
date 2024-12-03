@@ -1,12 +1,15 @@
+// Standard libraries
 #include <regex>
+
+// Program files
 #include "Receipt.h"
 
 // Define constructors
 
-Receipt::Receipt() : retailer(""), pdate("1900-01-01"), ptime("12:00"), items(), total(0)
+Receipt::Receipt() : retailer(""), pdate("1900-01-01"), ptime("12:00"), items(), total(0) // Default constructor
 {}
 
-Receipt::Receipt(const std::string& retailer, const std::string& pdate, const std::string& ptime, const std::vector<Item>& items, const double total) :
+Receipt::Receipt(const std::string& retailer, const std::string& pdate, const std::string& ptime, const std::vector<Item>& items, const double total) : // Parameterized constructor
 	retailer(retailer), pdate(pdate), ptime(ptime), items(items), total(total)
 {}
 

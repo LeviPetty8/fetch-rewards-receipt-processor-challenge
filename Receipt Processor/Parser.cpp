@@ -1,11 +1,13 @@
+// Standard libraries
 #include <iostream>
-#include <regex>
 
+// rapidjson libraries
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/document.h"
 #include "rapidjson/filewritestream.h"
 #include "rapidjson/writer.h"
 
+// Program files
 #include "Parser.h"
 
 namespace json = rapidjson;
@@ -13,7 +15,7 @@ namespace json = rapidjson;
 // Define static member variables
 const fs::path Parser::RECEIPTS(fs::current_path() / "receipts");
 
-// Define public member function for POST
+// Define public member functions
 
 void Parser::POST(const std::string& filename) const
 {
@@ -91,8 +93,6 @@ void Parser::POST(const std::string& filename) const
 	// Output ID
 	std::cout << "{\"id\": \"" << id << "\"}" << std::endl;
 }
-
-// Define public member function for GET
 
 void Parser::GET(const std::string& id) const
 {
