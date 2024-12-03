@@ -2,6 +2,13 @@
 #include <regex>
 #include "Parser.h"
 
+#include "rapidjson/filereadstream.h"
+#include "rapidjson/document.h"
+#include "rapidjson/filewritestream.h"
+#include "rapidjson/writer.h"
+
+namespace json = rapidjson;
+
 const std::nullopt_t null = std::nullopt;
 
 // Define static member variables
@@ -13,39 +20,77 @@ void Parser::POST(const std::string& filename) const
 {
 	const fs::path file(RECEIPTS / "process" / filename);
 
-	// Setup for file input
-	std::ifstream fin(file);
-	if (!fin.is_open())
+	if (!fs::exists(file))
 	{
-		std::cerr << "File " << filename << " failed to open." << std::endl;
+		std::cerr << std::format("File {} not found.", filename) << std::endl;
 		return;
 	}
-	
-	// Perform file input
-	const std::optional<Receipt> receipt = parseReceipt(fin);
-	fin.close();
 
-	if (!receipt.has_value()) return; // Exit if receipt parsing failed
+	// Read JSON file
+	FILE* ifile;
+	fopen_s(&ifile, file.string().c_str(), "r");
+	char ibuf[65536];
+	json::FileReadStream is(ifile, ibuf, sizeof(ibuf));
+	json::Document doc;
+	doc.ParseStream(is);
+	fclose(ifile);
+
+	// Parse data
+	const std::string retailer = doc["retailer"].GetString();
+	const std::string pdate = doc["purchaseDate"].GetString();
+	const std::string ptime = doc["purchaseTime"].GetString();
+	const double total = std::stod(doc["total"].GetString());
+	// Parse items
+	std::vector<Item> items;
+	for (unsigned int i = 0; i < doc["items"].Size(); i++)
+	{
+		const std::string desc = doc["items"][i]["shortDescription"].GetString();
+		const double price = std::stod(doc["items"][i]["price"].GetString());
+		items.push_back(Item(desc, price));
+	}
+	if (items.empty())
+	{
+		std::cerr << "Invalid data: Items list cannot be empty." << std::endl;
+		return;
+	}
+	// Final result of parsing data
+	const Receipt2 receipt(retailer, pdate, ptime, items, total);
+	if (!receipt.validateDate())
+	{
+		std::cerr << "Invalid data: Date format is invalid." << std::endl;
+		return;
+	}
+	if (!receipt.validateTime())
+	{
+		std::cerr << "Invalid data: Time format is invalid." << std::endl;
+		return;
+	}
+	if (!receipt.validateTotal())
+	{
+		std::cerr << "Invalid data: Total in \"total\" field doesn't match actual total item prices." << std::endl;
+		return;
+	}
 
 	// Create new directory for file output
 	const std::string id = generateID();
 
-	// Setup for file output
-	const fs::path points(RECEIPTS / id / "points.json");
-	std::ofstream fout(points);
-	if (!fout.is_open())
-	{
-		std::cerr << "File points.json failed to open." << std::endl;
-		return;
-	}
+	// Prep data to write
+	json::Document score;
+	score.SetObject();
+	score.AddMember("points", receipt.calculatePoints(), score.GetAllocator());
 
-	// Output score to points.json
-	const uint score = receipt.value().calculatePoints();
-	fout << "{ \"points\": " << score << " }";
-	fout.close();
+	// Write JSON file
+	const fs::path points(RECEIPTS / id / "points.json");
+	FILE* ofile;
+	fopen_s(&ofile, points.string().c_str(), "w");
+	char obuf[65536];
+	json::FileWriteStream os(ofile, obuf, sizeof(obuf));
+	json::Writer<json::FileWriteStream> writer(os);
+	score.Accept(writer);
+	fclose(ofile);
 
 	// Output ID
-	std::cout << "{ \"id\": \"" << id << "\" }" << std::endl;
+	std::cout << "{\"id\": \"" << id << "\"}" << std::endl;
 }
 
 // Define public member function for GET
