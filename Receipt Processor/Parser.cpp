@@ -2,8 +2,8 @@
 #include <iostream>
 
 // rapidjson libraries
+#include <rapidjson/document.h>
 #include "rapidjson/filereadstream.h"
-#include "rapidjson/document.h"
 #include "rapidjson/filewritestream.h"
 #include "rapidjson/writer.h"
 
@@ -35,6 +35,12 @@ void Parser::POST(const std::string& filename) const
 	json::Document doc;
 	doc.ParseStream(is);
 	fclose(ifile);
+
+	if (doc.HasParseError())
+	{
+		std::cout << "Error parsing file." << std::endl;
+		return;
+	}
 
 	// Parse data
 	const std::string retailer = doc["retailer"].GetString();
@@ -112,6 +118,12 @@ void Parser::GET(const std::string& id) const
 	json::Document doc;
 	doc.ParseStream(is);
 	fclose(ifile);
+
+	if (doc.HasParseError())
+	{
+		std::cerr << "Error parsing file." << std::endl;
+		return;
+	}
 
 	// Output result
 	const int result = doc["points"].GetInt();
